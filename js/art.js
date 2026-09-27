@@ -199,9 +199,13 @@ const ART = (() => {
       <circle cx="${x1}" cy="${y1}" r="${w/1.6}" fill="#4d4a42" stroke="${INK}" stroke-width="3"/>
       <circle cx="${x2}" cy="${y2}" r="${w/1.6}" fill="#4d4a42" stroke="${INK}" stroke-width="3"/></g>`;
   }
+  /* The board grows with the words — a long sign like MIND THE CRATES used to
+     run straight off its own 180-wide plank. 21px caps with 1px of tracking
+     measure about 13.5px each, and 26px of board is left either side. */
   function sign(x,y,text,rot=-4){
+    const w = Math.max(180, Math.round(text.length * 13.5) + 52);
     return `<g transform="translate(${x} ${y}) rotate(${rot})" filter="url(#wobble)">
-      ${hrect(-90,-30,180,60,'#d8c9a2',INK,4)}
+      ${hrect(-w/2,-30,w,60,'#d8c9a2',INK,4)}
       <text x="0" y="8" text-anchor="middle" font-size="21" fill="#6b2f22"
         font-family="inherit" letter-spacing="1">${text}</text></g>`;
   }

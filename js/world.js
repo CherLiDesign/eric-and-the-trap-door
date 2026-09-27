@@ -241,8 +241,10 @@ const World = (() => {
       ${ART.sign(800,220,'QUIET PLEASE',-3)}`,
     spots: s => [] },
 
+  /* Amy's room is next door to Alex's — same brick, same floor. It used to be
+     a flat dark wall, which read as a different building. */
   vault: { ground: 780, amb:'base',
-    art: () => `${wall('#1c1b28','#101019')}${floor(780,'#242130')}
+    art: () => `${brickWall()}${floor(780,'#3a3026','#241d16')}
       ${ART.pipe(-20,180,700,200,22)}
       <!-- the big padlock used to hang here, but the doorway through to the
            Crate Workshop stands at x 1400 and the lock sat right behind its
@@ -252,7 +254,7 @@ const World = (() => {
         <path d="M1330 240 v540" stroke="${K}" stroke-width="6"/>
       </g>
       ${ART.lamp(600,250,300)}
-      ${ART.sign(320,520,'MATCH OR LEAVE',-5)}`,
+      ${ART.sign(920,560,'MATCH OR LEAVE',-5)}`,
     spots: s => [] },
 
   workshop: { ground: 800, amb:'base',

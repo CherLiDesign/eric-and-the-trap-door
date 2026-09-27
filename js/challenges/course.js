@@ -38,43 +38,46 @@ const ChallengeCourse = (() => {
      of Eric's head (ground there is ~338, he is 48 tall, so his head is ~290):
      228 + r20 = 248, a good 40px of daylight. Any lower and he cannot get
      under it at a run, which is the whole obstacle. */
-  const ROCK_SP = 0.0034;
   const ROCK_GAP = 80;                  // as she drew them, seven in a row
-  /* Each rock starts a little behind the one on its left, and by exactly the
-     amount that makes the raised gap travel to the right at running speed.
-     Set off at the right moment and the opening stays with you the whole way;
-     start late and the row closes on you one rock at a time. */
-  const ROCK_PH = -(ROCK_SP * 16) * (ROCK_GAP / 6.4);
-  const STONES = [0,1,2,3,4,5,6].map(i=>({
-    px: 912 + i*ROCK_GAP,
-    sp:  ROCK_SP,
-    ph:  i * ROCK_PH,
-    r:   20,
-  }));
+  /* ONE AT A TIME, AND SLOWLY. They used to all swing together on a fast
+     cycle, which read as a wall of moving rock. Now exactly one rock is ever
+     down: it takes its turn, comes down, sits there, goes back up, and only
+     then does its neighbour on the right begin. You can stand and watch the
+     whole row take its turns before you decide to go. */
+  const ROCK_CYCLE = 2000;              // ms for one rock's whole turn
+  const ROCK_DROP  = 0.30;              // of the turn spent coming down
+  const ROCK_HOLD  = 0.24;              //   ... sitting at the bottom
+  const ROCK_RISE  = 0.30;              //   ... going back up (rest: a pause)
+  const STONES = [0,1,2,3,4,5,6].map(i=>({ px: 912 + i*ROCK_GAP, r: 20 }));
+  /* 0 at the top, 1 at the bottom — where rock `i` is at time `t` */
+  function rockK(i, t){
+    const turn = Math.floor((t % (ROCK_CYCLE * STONES.length)) / ROCK_CYCLE);
+    if(turn !== i) return 0;            // not its turn: it stays up out of the way
+    const u = (t % ROCK_CYCLE) / ROCK_CYCLE;
+    if(u < ROCK_DROP)                 return 0.5 - 0.5*Math.cos(Math.PI * (u / ROCK_DROP));
+    if(u < ROCK_DROP + ROCK_HOLD)     return 1;
+    if(u < ROCK_DROP + ROCK_HOLD + ROCK_RISE)
+      return 0.5 + 0.5*Math.cos(Math.PI * ((u - ROCK_DROP - ROCK_HOLD) / ROCK_RISE));
+    return 0;
+  }
 
   /* The blue in Emma's drawing is WATER. Anything below this line is the
-     pool the crocodile lives in — the left-hand pit, where the coiled spring
-     and the row of grey teeth are drawn. Falling in is the end of the run. */
+     deep pit on the left. Falling in is the end of the run. */
   const WATER_Y = 520;
 
-  /* The crocodile sits at the spring and the row of grey teeth, exactly
-     where she drew them — the hinge of his jaw, at the waterline. */
-  const CROC = { x: 300, y: 552 };
-  /* one row of teeth along a jaw; dir -1 points them down, +1 up */
-  function teethRow(dir){
-    return [0,1,2,3,4,5].map(i=>{
-      const x = 92 - i*29, w = 11 - i*0.7, h = (17 - i*1.6) * -dir;
-      return `<path d="M${x-w} ${dir*2} l${w} ${h} l${w} ${-h}z"
-                    fill="#e8e3d4" stroke="#14131b" stroke-width="4" stroke-linejoin="round"/>`;
-    }).join('');
-  }
+  /* The crocodile used to live here. He is gone — the pit is just water now.
+     The spring and the row of grey teeth are part of Emma's drawing, so they
+     are painted over with the pool's own blue and the pit reads as one pool.
+     Measured off the artwork: px 155–252 across, 336–424 down. */
+  const PIT_PATCH = { x: 164, y: 556, w: 104, h: 89 };
+  const POOL_BLUE = '#2a7dab';
 
   /* The little ledges she drew floating over the water and the hot pool —
      the yellow square, the purple bar, the green swing. Sampled off the
      artwork, so Eric stands on the shapes that are actually painted there. */
   const PLATFORMS = [
-    { x1: 234, x2: 252, y: 441 },   // the small yellow square, over the crocodile
-    { x1: 407, x2: 442, y: 432 },   // the purple bar, at the lip of the hot pool
+    { x1: 234, x2: 252, y: 441 },   // the small yellow square, over the water
+    { x1: 359, x2: 443, y: 430 },   // the purple bar, at the lip of the hot pool
     { x1: 519, x2: 587, y: 312 },   // the green swing, hanging from the ceiling
   ];
 
@@ -121,27 +124,14 @@ const ChallengeCourse = (() => {
       </g>
       <text x="${KEY_X}" y="${groundAt(KEY_X)-118}" text-anchor="middle" font-size="20"
             fill="#8a6a1e" font-family="inherit">Dad's key</text>
-      <!-- THE CROCODILE. He lives where the spring and the teeth are drawn,
-           he never moves, and his mouth just stays open, waiting. -->
-      <g id="croc" transform="translate(${CROC.x} ${CROC.y})">
-        <g id="upperjaw">
-          <path d="M116 -4 q-70 -30 -158 -26 q-10 1 -9 9 q84 14 167 25z"
-                fill="#3f6f8c" stroke="#14131b" stroke-width="5" stroke-linejoin="round"/>
-          ${teethRow(-1)}
-          <circle cx="86" cy="-26" r="13" fill="#e8e3d4" stroke="#14131b" stroke-width="5"/>
-          <circle cx="86" cy="-26" r="6" fill="#14131b"/>
-          <circle cx="48" cy="-22" r="13" fill="#e8e3d4" stroke="#14131b" stroke-width="5"/>
-          <circle cx="48" cy="-22" r="6" fill="#14131b"/>
-        </g>
-        <g id="lowerjaw">
-          <path d="M116 4 q-70 26 -158 22 q-10 -1 -9 -8 q84 -12 167 -22z"
-                fill="#33607c" stroke="#14131b" stroke-width="5" stroke-linejoin="round"/>
-          ${teethRow(1)}
-        </g>
-      </g>
+      <!-- the spring and the grey teeth, painted out: the pit is all water -->
+      <rect x="${PIT_PATCH.x}" y="${PIT_PATCH.y}" width="${PIT_PATCH.w}" height="${PIT_PATCH.h}"
+            fill="${POOL_BLUE}"/>
+      <path d="M${PIT_PATCH.x} ${PIT_PATCH.y} h${PIT_PATCH.w}"
+            stroke="#14131b" stroke-width="5" fill="none"/>
       <g id="eric" transform="translate(${ex} ${ey})">${ART.eric('sneak',ERIC_H)}</g>
       <text x="800" y="120" text-anchor="middle" font-size="26" fill="#3d4552" font-family="inherit">
-        get across to Dad's key — the blue is water, and the rocks come down</text>
+        get across to Dad's key — the blue is water — do not fall in. Watch the rocks.</text>
       <g id="pad" opacity=".92">
         <g class="btn" data-k="left"  transform="translate(140 ${H-110})"><circle r="44" fill="${PAPER}" stroke="#14131b" stroke-width="5"/><path d="M13 -17 L-15 0 L13 17Z" fill="#14131b"/></g>
         <g class="btn" data-k="right" transform="translate(256 ${H-110})"><circle r="44" fill="${PAPER}" stroke="#14131b" stroke-width="5"/><path d="M-13 -17 L15 0 L-13 17Z" fill="#14131b"/></g>
@@ -188,42 +178,22 @@ const ChallengeCourse = (() => {
         cancelAnimationFrame(raf);
       }
 
-      /* THE CROCODILE. He waits with his mouth open. Eric hits the water,
-         slides down into it, and the mouth shuts. Nothing gory — he goes
-         under, and the run starts again. Then the mouth opens back up. */
-      const upper = L.querySelector('#upperjaw'), lower = L.querySelector('#lowerjaw');
-      upper.style.transformOrigin = '116px 0px';
-      lower.style.transformOrigin = '116px 0px';
-      upper.style.transform = 'rotate(-26deg)';     // open, and it stays open
-      lower.style.transform = 'rotate(24deg)';
-
-      async function chomp(x, y){
+      /* Falling in the water: he goes under with a splash and the run
+         starts again. No crocodile any more — the pit is just deep. */
+      async function splash(){
         SFX.whoosh();
-        eric.style.transition = 'transform .28s ease-in, opacity .18s ease .22s';
-        eric.setAttribute('transform', `translate(${CROC.x - 40} ${CROC.y + 4}) scale(${face},1)`);
-        await UI.wait(280);
-        upper.style.transition = lower.style.transition =
-          'transform .16s cubic-bezier(.3,0,.2,1)';
-        upper.style.transform = 'rotate(0deg)';
-        lower.style.transform = 'rotate(0deg)';
+        eric.style.transition = 'transform .3s ease-in, opacity .2s ease .18s';
+        eric.setAttribute('transform', `translate(${ex} ${ey + 46}) scale(${face},1)`);
         eric.style.opacity = '0';
-        SFX.snap(); SFX.metal();
-        L.animate([{transform:'translate(0,0)'},{transform:'translate(-8px,6px)'},
-                   {transform:'translate(6px,-4px)'},{transform:'translate(0,0)'}],
-                  {duration:300, easing:'ease-out'});
-        await UI.wait(520);
-        upper.style.transition = lower.style.transition =
-          'transform .5s cubic-bezier(.4,0,.3,1)';
-        upper.style.transform = 'rotate(-26deg)';   // and he opens up again, waiting
-        lower.style.transform = 'rotate(24deg)';
+        await UI.wait(420);
         eric.style.transition = '';
         eric.style.opacity = '1';
       }
 
-      async function restart(why, croc){
+      async function restart(why, wet){
         if(done) return;
         done = true;
-        if(croc) await chomp(croc.x, croc.y);
+        if(wet) await splash();
         SFX.oops(); SFX.whoosh();
         falls++;
         await UI.say(falls === 1 ? why
@@ -238,9 +208,9 @@ const ChallengeCourse = (() => {
         raf = requestAnimationFrame(tick);
         t += 16;
 
-        /* the rocks ride straight up and down their lines */
+        /* the rocks ride straight up and down their lines — one at a time */
         const pos = STONES.map((s,i)=>{
-          const k = 0.5 - 0.5*Math.cos(t*s.sp + s.ph);       // 0 at the top, 1 at the bottom
+          const k = rockK(i, t);
           const y = ROCK_HI + (ROCK_LO - ROCK_HI) * k;
           rockEls[i].setAttribute('cy', y);
           lineEls[i].setAttribute('y2', y);
@@ -285,11 +255,9 @@ const ChallengeCourse = (() => {
 
         if(onGround && !onPlat && lavaAt(ex)){ restart('HOT. Hot hot hot. Okay — again.'); return; }
 
-        /* the water. Everything blue and low belongs to the crocodile. */
+        /* the water. Everything blue and low is deep. */
         if(onGround && !onPlat && ey > WATER_Y){
-          SFX.whoosh();
-          restart('Something came up out of the water at him. He is NOT going that way.',
-                  { x: ex, y: ey - 26 });
+          restart('Straight into the water. He is not going that way.', true);
           return;
         }
 
