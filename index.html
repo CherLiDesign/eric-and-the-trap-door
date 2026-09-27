@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<!-- the browser was serving a cached copy of the game after edits; these stop it -->
+<meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<title>Eric and the Trap Door</title>
+<link rel="stylesheet" href="css/style.css?v=202609271430">
+</head>
+<body>
+
+<!-- global hand-drawn wobble filters, paper grain -->
+<svg id="defs" width="0" height="0" aria-hidden="true">
+  <defs>
+    <filter id="wobble" x="-12%" y="-12%" width="124%" height="124%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.028" numOctaves="2" seed="7" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="2.6" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <filter id="wobble2" x="-12%" y="-12%" width="124%" height="124%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.021" numOctaves="2" seed="19" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="3.4" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <filter id="softglow" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="12" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <radialGradient id="lampgrad">
+      <stop offset="0%" stop-color="#f3cd8a" stop-opacity=".85"/>
+      <stop offset="100%" stop-color="#f3cd8a" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="grain">
+      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" stitchTiles="stitch"/>
+      <feColorMatrix type="saturate" values="0"/>
+    </filter>
+  </defs>
+</svg>
+
+<div id="stage">
+  <div id="scene"></div>        <!-- current playable scene -->
+  <div id="vignette"></div>
+  <div id="grainlayer"></div>
+  <div id="hud"></div>          <!-- lantern / keys / map button -->
+  <div id="overlay"></div>      <!-- map, cinematics, notes -->
+  <div id="fade"></div>
+  <div id="caption"></div>
+</div>
+
+<script src="js/assets.js?v=202609271430"></script>
+<script src="js/audio.js?v=202609271430"></script>
+<script src="js/art.js?v=202609271430"></script>
+<script src="js/state.js?v=202609271430"></script>
+<script src="js/ui.js?v=202609271430"></script>
+<script src="js/map.js?v=202609271430"></script>
+<script src="js/world.js?v=202609271430"></script>
+<script src="js/challenges/timing.js?v=202609271430"></script>
+<script src="js/challenges/memory.js?v=202609271430"></script>
+<script src="js/challenges/course-map.js?v=202609271430"></script>
+<script src="js/challenges/course.js?v=202609271430"></script>
+<script src="js/challenges/hammer.js?v=202609271430"></script>
+<script src="js/challenges/lock.js?v=202609271430"></script>
+<script src="js/main.js?v=202609271430"></script>
+</body>
+</html>
