@@ -22,15 +22,17 @@ const ChallengeHammer = (() => {
         <path d="M280 300 q520 -70 1050 0 l50 560 q-560 70 -1150 0z" fill="#332c30" stroke="#1b1a22" stroke-width="8"/>
         <text x="800" y="366" text-anchor="middle" font-size="27" fill="#8b8272" font-family="inherit">PROPERTY OF THE MANAGEMENT</text>
       </g>
-      <g id="keywin" transform="translate(800 210)">
-        <rect x="-90" y="-10" width="180" height="120" fill="#151420" stroke="#1b1a22" stroke-width="6"/>
-        <g id="thekey" transform="translate(0 -70)" opacity=".25">${ART.key(120,'#e8d27a')}</g>
-      </g>
       <text id="tally" x="330" y="374" font-size="36" fill="#f3cd8a" font-family="inherit"
         stroke="#1b1a22" stroke-width="2" paint-order="stroke">BOLTS 0 / ${NEED}</text>
       <g id="holes">${HOLES.map((h,i)=>`<g transform="translate(${h[0]} ${h[1]})">
         <ellipse rx="82" ry="30" fill="#1a1620" stroke="#1b1a22" stroke-width="5"/>
         <g id="pop${i}" class="pop" style="cursor:pointer"></g></g>`).join('')}</g>
+      <!-- the key hangs above the machine, but it falls PAST the holes, so it
+           is drawn after them — otherwise a hole swallows it on the way down -->
+      <g id="keywin" transform="translate(800 210)">
+        <rect x="-90" y="-10" width="180" height="120" fill="#151420" stroke="#1b1a22" stroke-width="6"/>
+        <g id="thekey" transform="translate(0 -70)" opacity=".25">${ART.key(120,'#e8d27a')}</g>
+      </g>
       <g id="fx" style="pointer-events:none"></g>
       <g id="hammer" transform="translate(1400 760)" style="pointer-events:none">
         <g id="hammerG" style="transform-origin:0px 0px">
